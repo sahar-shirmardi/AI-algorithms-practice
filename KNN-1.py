@@ -1,11 +1,8 @@
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-from sklearn import metrics
-from sklearn.neighbors import KNeighborsClassifier
+from collections import Counter
+from sklearn.metrics import accuracy_score
 
 # Import dataset
 df_train = pd.read_csv('./Survivors/train.csv')
@@ -57,4 +54,34 @@ def minkowski_distance(a, b, p=1):
     distance = distance**(1/p)
     
     return distance
-print(minkowski_distance(a=df_train_set.iloc[:, 2], b=df_train_set.iloc[:, 1], p=1))
+
+# manual KNN
+def knn_predict(X_train, X_test, Y_train, Y_test, k, p):
+    # Make predictions on the test data
+    # Need output of 1 prediction per test data point
+    Y_hat_test = []
+
+    for test_point in X_test:
+        distances = []
+
+        for train_point in X_train:
+            distance = minkowski_distance(test_point, train_point, p=p)
+            distances.append(distance)
+        
+        # Store distances in a dataframe
+        df_dists = pd.DataFrame(data=distances, columns=['dist'], index=Y_train.index)
+        
+        # Sort distances, and only consider the k closest points
+        df_nn = df_dists.sort_values(by=['dist'], axis=0)[:k]
+
+        # Create counter object to track the labels of k closest neighbors
+        counter = Counter(Y_train[df_nn.index])
+
+        # Get most common label of all the nearest neighbors
+        prediction = counter.most_common()[0][0]
+        
+        # Append prediction to output list
+        Y_hat_test.append(prediction)
+        
+    return Y_hat_test
+
