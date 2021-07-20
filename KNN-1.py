@@ -45,4 +45,16 @@ X = df_train_set.iloc[:, 1:5].values
 Y = df_train_set.iloc[:, 0].values
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.4, random_state=4)
 
+# Calculate distance between two points
+def minkowski_distance(a, b, p=1):
+    
+    dim = len(a)
+    distance = 0
 
+    for d in range(dim):
+        distance += abs(a[d] - b[d])**p
+        
+    distance = distance**(1/p)
+    
+    return distance
+print(minkowski_distance(a=df_train_set.iloc[:, 2], b=df_train_set.iloc[:, 1], p=1))
