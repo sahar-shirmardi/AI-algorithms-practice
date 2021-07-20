@@ -57,8 +57,7 @@ def minkowski_distance(a, b, p=1):
 
 # manual KNN
 def knn_predict(X_train, X_test, Y_train, Y_test, k, p):
-    # Make predictions on the test data
-    # Need output of 1 prediction per test data point
+
     Y_hat_test = []
 
     for test_point in X_test:
@@ -68,20 +67,21 @@ def knn_predict(X_train, X_test, Y_train, Y_test, k, p):
             distance = minkowski_distance(test_point, train_point, p=p)
             distances.append(distance)
         
-        # Store distances in a dataframe
         df_dists = pd.DataFrame(data=distances, columns=['dist'], index=Y_train.index)
-        
-        # Sort distances, and only consider the k closest points
         df_nn = df_dists.sort_values(by=['dist'], axis=0)[:k]
-
-        # Create counter object to track the labels of k closest neighbors
         counter = Counter(Y_train[df_nn.index])
-
-        # Get most common label of all the nearest neighbors
         prediction = counter.most_common()[0][0]
-        
-        # Append prediction to output list
         Y_hat_test.append(prediction)
         
     return Y_hat_test
 
+# KNN model
+k_range = range(1, 26)
+scores = []
+
+for k in k_range:
+    Y_hat_test = knn_predict(X_train, X_test, Y_train, Y_test, k, p=1)
+    scores.append(accuracy_score(Y_test, Y_hat_test))
+
+for score in scores:
+    print(score)
